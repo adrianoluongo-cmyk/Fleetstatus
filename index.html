@@ -3,312 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Flotta // Live</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <title>DASHBOARD Danni Autoparco CRI Gallarate</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         :root {
-            --bg-base: #0a0f18;
-            --neon-blue: #00e5ff;
-            --neon-red: #ff3366;
-            --text-main: #b4c5d6;
-            --text-bright: #ffffff;
-            
-            --glass-bg: rgba(16, 25, 40, 0.6);
-            --glass-border: rgba(0, 229, 255, 0.15);
-            
-            --font-main: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
-
-        /* Nascondi scrollbar per pulizia */
-        ::-webkit-scrollbar {
-            display: none;
+            --cri-red: #d64545;
+            --bg-dark: #0f172a;
+            --card-bg: #ffffff;
         }
 
         body {
-            background-color: var(--bg-base);
-            /* Sfondo a griglia leggerissima */
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: var(--text-main);
-            font-family: var(--font-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #f1f5f9;
             margin: 0;
-            padding: 1.5rem; /* Margini ridotti */
-            box-sizing: border-box;
-            height: 100vh; /* Forza l'altezza alla finestra del browser */
-            overflow: hidden; /* Blocca lo scroll manuale e automatico */
-            display: flex;
-            flex-direction: column;
+            padding: 20px;
+            color: #1e293b;
+            overflow-x: hidden;
         }
 
-        /* Intestazione ultra-compatta */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 0.8rem 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0; /* Impedisce che l'header si rimpicciolisca */
+            background: var(--cri-red);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(214, 69, 69, 0.2);
         }
 
-        h1 {
-            color: var(--text-bright);
-            font-weight: 800;
-            font-size: 1.6rem;
-            margin: 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        h1 { margin: 0; font-size: 2.5rem; }
+        .stats { font-size: 1.5rem; font-weight: bold; }
 
-        .status-badge {
-            background: rgba(255, 51, 102, 0.1);
-            color: var(--neon-red);
-            border: 1px solid var(--neon-red);
-            padding: 0.4rem 1rem;
-            border-radius: 4px;
-            font-weight: 800;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            animation: pulse-red 2s infinite;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dot {
-            height: 8px;
-            width: 8px;
-            background-color: var(--neon-red);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px var(--neon-red);
-        }
-
-        /* Griglia dinamica per far stare tutto in una schermata */
-        #dashboard-grid {
+        /* GRIGLIA PRINCIPALE */
+        #listaDifetti {
             display: grid;
-            /* Le colonne si adattano. Se ci sono troppe schede, si rimpiccioliscono */
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            /* Se superiamo lo spazio in altezza, la griglia proverà a schiacciare i gap */
-            gap: 1rem;
-            flex-grow: 1; /* Occupa tutto lo spazio rimanente sotto l'header */
-            align-content: start; /* Allinea in alto */
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
         }
 
-        /* Scheda Veicolo */
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid var(--glass-border);
-            border-top: 3px solid var(--neon-blue);
+        .veicolo-group {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border-top: 8px solid var(--cri-red);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .veicolo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .veicolo-sigla {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .badge-conteggio {
+            background: #f8fafc;
+            color: var(--cri-red);
+            border: 2px solid var(--cri-red);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* CARD SINGOLO DIFETTO */
+        .difetto-card {
+            background: #f8fafc;
+            border-left: 5px solid #cbd5e1;
+            padding: 15px;
+            margin-bottom: 12px;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            /* Altezza massima limitata per farcene stare di più */
-            max-height: calc(100vh - 120px); 
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .sigla-radio {
-            font-weight: 800;
-            font-size: 1.6rem;
-            color: var(--text-bright);
-        }
-
-        .badge-count {
-            background-color: rgba(0, 229, 255, 0.1);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            padding: 0.2rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        /* Contenitore Segnalazioni (con scroll interno se troppe in una sola scheda) */
-        .reports-container {
-            padding: 0.8rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            overflow-y: auto; /* Se un singolo veicolo ha troppi danni, scrolla solo la sua scheda */
-        }
-
-        /* Singola segnalazione compatta */
-        .report-item {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 0.6rem 0.8rem;
-            border-radius: 6px;
-            border-left: 3px solid #fff; 
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.4rem;
-        }
-
-        .difetto-tipo {
-            font-family: var(--font-mono);
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 0.2rem 0.4rem;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .tipologia-badge {
+            font-size: 0.9rem;
             text-transform: uppercase;
+            font-weight: bold;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
         }
 
-        .id-segnalazione {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.3);
+        .descrizione {
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: #334155;
         }
 
-        .difetto-descrizione {
-            font-size: 0.95rem;
-            line-height: 1.3;
-            color: var(--text-bright);
-            font-weight: 400;
-            /* Trunca il testo se è troppo lungo per salvare spazio */
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* Mostra massimo 2 righe di descrizione */
-            -webkit-box-orient: vertical;  
-            overflow: hidden;
+        .data-segnalazione {
+            display: block;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 8px;
+            text-align: right;
         }
 
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.3); }
-            70% { box-shadow: 0 0 0 8px rgba(255, 51, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+        /* MESSAGGIO TUTTO OK */
+        .tutto-ok {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px;
+            background: white;
+            border-radius: 30px;
+            font-size: 3rem;
+            color: #10b981;
+        }
+
+        .loading {
+            font-size: 2rem;
+            text-align: center;
+            width: 100%;
+            margin-top: 100px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>DASHBOARD SEGNALAZIONI VEICOLI</h1>
-        <div class="status-badge">
-            <span class="dot"></span>
-            SYS. ONLINE
+        <div>
+            <h1>🚛 Stato Danni Autoparco</h1>
+            <div id="last-update" style="opacity: 0.8;">Caricamento...</div>
         </div>
+        <div class="stats" id="stats-summary">Mezzi con danni: --</div>
     </header>
 
-    <div id="dashboard-grid">
-        </div>
+    <div id="listaDifetti">
+        <div class="loading">Sincronizzazione database in corso... ⏳</div>
+    </div>
 
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8wQ0jGLsUvO8VqP8SnyuLlar0zApUn1maRLMEWMFL2EFrv2LFcxGkLJ6X3vf4ilsDWPRAzHjcub-l/pub?output=csv';
-
-        function getDefectStyle(tipo) {
-            const t = tipo.toUpperCase();
-            if (t.includes('ELETTRICO')) return { color: '#ffea00', border: '#ffea00', bg: 'rgba(255, 234, 0, 0.1)' }; 
-            if (t.includes('MECCANICO')) return { color: '#ff8c00', border: '#ff8c00', bg: 'rgba(255, 140, 0, 0.1)' }; 
-            if (t.includes('CARROZZERIA')) return { color: '#ff00aa', border: '#ff00aa', bg: 'rgba(255, 0, 170, 0.1)' }; 
-            if (t.includes('VETRI')) return { color: '#00e5ff', border: '#00e5ff', bg: 'rgba(0, 229, 255, 0.1)' }; 
-            return { color: '#00e676', border: '#00e676', bg: 'rgba(0, 230, 118, 0.1)' }; 
-        }
-
-        async function fetchDashboardData() {
-            try {
-                const response = await fetch(csvUrl + '&t=' + new Date().getTime());
-                const csvText = await response.text();
-                processCSV(csvText);
-            } catch (error) {
-                console.error('Errore di connessione:', error);
-            }
-        }
-
-        function processCSV(csvText) {
-            const lines = csvText.split('\n').filter(line => line.trim() !== '');
-            const grid = document.getElementById('dashboard-grid');
-            grid.innerHTML = ''; 
-
-            const vehicles = {};
-
-            // Lettura colonne (0:ID Nascosto, 1:ID Segn, 2:Sigla, 3:Tipo, 4:Desc, 5:Foto, 6:Autista)
-            for (let i = 1; i < lines.length; i++) {
-                const columns = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
-                if (columns.length >= 5) { // Ci bastano le prime 5 colonne ora
-                    const idSegnalazione = columns[1] ? columns[1].trim().replace(/"/g, '') : 'N/A';
-                    const sigla = columns[2] ? columns[2].trim().replace(/"/g, '') : 'SCONOSCIUTA';
-                    const tipo = columns[3] ? columns[3].trim().replace(/"/g, '') : 'GEN';
-                    const desc = columns[4] ? columns[4].trim().replace(/"/g, '') : 'Nessun dettaglio';
-
-                    if (!vehicles[sigla]) {
-                        vehicles[sigla] = [];
-                    }
-                    
-                    vehicles[sigla].push({ id: idSegnalazione, tipo, desc });
+        
+        function caricaDati() {
+            Papa.parse(csvUrl, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    processaDati(results.data);
+                    document.getElementById('last-update').textContent = "Ultimo aggiornamento: " + new Date().toLocaleTimeString();
                 }
+            });
+        }
+
+        function processaDati(dati) {
+            const listaDiv = document.getElementById('listaDifetti');
+            listaDiv.innerHTML = '';
+
+            const difettiAttivi = dati.filter(riga => {
+                const haSigla = riga['Sigla radio'] && riga['Sigla radio'].trim() !== '';
+                const eRisolto = Object.values(riga).some(val => typeof val === 'string' && val.trim().toLowerCase() === 'risolto');
+                return haSigla && !eRisolto;
+            });
+
+            if (difettiAttivi.length === 0) {
+                listaDiv.innerHTML = '<div class="tutto-ok">✅ Tutti i mezzi sono operativi</div>';
+                document.getElementById('stats-summary').textContent = "Mezzi con danni: 0";
+                return;
             }
 
-            const sortedSigle = Object.keys(vehicles).sort();
+            // Raggruppamento
+            const raggruppati = {};
+            difettiAttivi.forEach(d => {
+                const sigla = d['Sigla radio'].trim().substring(0, 10);
+                if (!raggruppati[sigla]) raggruppati[sigla] = [];
+                raggruppati[sigla].push(d);
+            });
 
-            sortedSigle.forEach(sigla => {
-                const reports = vehicles[sigla];
+            const sigle = Object.keys(raggruppati).sort();
+            document.getElementById('stats-summary').textContent = `Mezzi con danni: ${sigle.length}`;
+
+            sigle.forEach(sigla => {
+                const mezzoDiv = document.createElement('div');
+                mezzoDiv.className = 'veicolo-group';
                 
-                let reportsHTML = '';
-                reports.forEach(report => {
-                    const style = getDefectStyle(report.tipo);
+                let htmlDifetti = '';
+                raggruppati[sigla].forEach(difetto => {
+                    const tipo = difetto['Tipologia Difetto'] || 'Generico';
+                    
+                    // Estraggo i testi dei vari campi come nel tuo codice originale
+                    let dettagli = [];
+                    if (difetto['Difetto motore e meccanica ⚙️']) dettagli.push(difetto['Difetto motore e meccanica ⚙️']);
+                    if (difetto['Elettrico e Dispositivi di Emergenza 🚑']) dettagli.push(difetto['Elettrico e Dispositivi di Emergenza 🚑']);
+                    if (difetto['Carrozzeria e vetri']) dettagli.push(difetto['Carrozzeria e vetri']);
+                    if (difetto['Vano Sanitario e Interni']) dettagli.push(difetto['Vano Sanitario e Interni']);
+                    
+                    const descrizioneText = dettagli.join(' | ') || difetto['Descrizione difetto'] || 'Dettaglio non specificato';
 
-                    reportsHTML += `
-                        <div class="report-item" style="border-left-color: ${style.border};">
-                            <div class="report-header">
-                                <span class="difetto-tipo" style="color: ${style.color}; background: ${style.bg};">
-                                    ${report.tipo}
-                                </span>
-                                <span class="id-segnalazione">${report.id}</span>
-                            </div>
-                            <div class="difetto-descrizione" title="${report.desc}">${report.desc}</div>
+                    htmlDifetti += `
+                        <div class="difetto-card">
+                            <span class="tipologia-badge" style="background:#fee2e2; color:#b91c1c">${tipo}</span>
+                            <div class="descrizione">${descrizioneText}</div>
+                            <span class="data-segnalazione">📅 ${difetto['Informazioni cronologiche'] || ''}</span>
                         </div>
                     `;
                 });
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="sigla-radio">${sigla}</span>
-                        <span class="badge-count">${reports.length}</span>
+                mezzoDiv.innerHTML = `
+                    <div class="veicolo-header">
+                        <span class="veicolo-sigla">🚐 ${sigla}</span>
+                        <span class="badge-conteggio">${raggruppati[sigla].length}</span>
                     </div>
-                    <div class="reports-container">
-                        ${reportsHTML}
+                    <div class="difetti-lista">
+                        ${htmlDifetti}
                     </div>
                 `;
-                grid.appendChild(card);
+                listaDiv.appendChild(mezzoDiv);
             });
         }
 
-        // Avvio iniziale e aggiornamento in background ogni 60 secondi
-        fetchDashboardData();
-        setInterval(fetchDashboardData, 60000);
-
-        // Nessuno scroll automatico della pagina. 
-        // L'altezza è fissa (100vh) per tenere tutto nella TV.
-
+        // Avvio e Refresh automatico ogni 5 minuti (300000 ms)
+        caricaDati();
+        setInterval(caricaDati, 300000);
     </script>
 </body>
 </html>
